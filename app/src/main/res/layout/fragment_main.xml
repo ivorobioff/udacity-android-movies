@@ -9,5 +9,9 @@
     tools:context="com.igorvorobiov.movies.MainActivityFragment"
     tools:showIn="@layout/activity_main">
 
-
+    <GridView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/all_movies_grid"
+        android:numColumns="2"/>
 </RelativeLayout>
