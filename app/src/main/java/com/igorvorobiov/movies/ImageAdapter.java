@@ -1,24 +1,26 @@
 package com.igorvorobiov.movies;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.BaseAdapter;
+import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 public class ImageAdapter extends BaseAdapter {
 
-    private String[] urls;
+    private String[] urls = new String[0];
     private Context context;
-    private int imageViewResourceId;
 
-    ImageAdapter(Context context, String[] urls, int imageViewResourceId){
+    ImageAdapter(Context context){
         this.context = context;
-        this.urls = urls;
-        this.imageViewResourceId = imageViewResourceId;
     }
 
     @Override
@@ -39,20 +41,26 @@ public class ImageAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        ImageView imageView;
+        final ImageView imageView;
 
         if (convertView != null){
             imageView = (ImageView) convertView;
         } else {
-            imageView = (ImageView) getInflater().inflate(imageViewResourceId, null);
+            imageView = new ImageView(context);
+            imageView.setAdjustViewBounds(true);
         }
 
-        Picasso.with(context).load((String)getItem(position)).into(imageView);
+        Picasso.with(context).load((String) getItem(position)).into(imageView);
 
         return imageView;
     }
 
+    public void refresh(String[] urls){
+        this.urls = urls;
+        notifyDataSetChanged();
+    }
+
     private LayoutInflater getInflater(){
-        return (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        return LayoutInflater.from(context);
     }
 }
