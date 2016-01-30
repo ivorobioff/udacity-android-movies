@@ -146,7 +146,7 @@ public class MainActivityFragment extends Fragment {
 
             for (int i = 0; i < results.length(); i ++){
                 JSONObject item = results.getJSONObject(i);
-                urls[i] = IMAGE_BASE_URL + "/w185" + item.getString("poster_path");
+                urls[i] = IMAGE_BASE_URL + "/w342" + item.getString("poster_path");
             }
 
             return urls;
