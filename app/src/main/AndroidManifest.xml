@@ -28,6 +28,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.igorvorobiov.movies.MainActivity" />
         </activity>
+
     </application>
 
 </manifest>

@@ -1,8 +1,8 @@
 package com.igorvorobiov.movies;
 
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,7 +27,7 @@ import java.net.URL;
  */
 public class MainActivityFragment extends Fragment {
 
-    private ImageAdapter imageAdapter = null;
+    private PosterAdapter imageAdapter = null;
 
     public MainActivityFragment() {
     }
@@ -47,12 +47,16 @@ public class MainActivityFragment extends Fragment {
     public void onStart(){
         super.onStart();
 
-        new FetchMoviesTask().execute();
+        String sorting = PreferenceManager
+                .getDefaultSharedPreferences(getActivity())
+                .getString("sorting", getString(R.string.default_movies_sorting_value));
+
+        new FetchMoviesTask(sorting).execute();
     }
 
-    private ImageAdapter getImageAdapter(){
+    private PosterAdapter getImageAdapter(){
         if (imageAdapter == null){
-            imageAdapter = new ImageAdapter(getActivity());
+            imageAdapter = new PosterAdapter(getActivity());
         }
 
         return imageAdapter;
@@ -65,6 +69,12 @@ public class MainActivityFragment extends Fragment {
         private final String BASE_URL = "http://api.themoviedb.org/3/discover/movie";
         private final String API_KEY = "fe0b7211cd3692d836285c1277af7732";
         private final String IMAGE_BASE_URL = "https://image.tmdb.org/t/p";
+
+        private String sorting;
+
+        FetchMoviesTask(String sorting){
+            this.sorting = sorting;
+        }
 
         protected void onPostExecute(String[] urls) {
             getImageAdapter().refresh(urls);
@@ -156,6 +166,7 @@ public class MainActivityFragment extends Fragment {
         {
             return Uri.parse(BASE_URL).buildUpon()
                     .appendQueryParameter("api_key", API_KEY)
+                    .appendQueryParameter("sort_by", sorting + ".desc")
                     .toString();
         }
     }
