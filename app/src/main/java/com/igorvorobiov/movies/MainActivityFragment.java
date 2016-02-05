@@ -1,5 +1,6 @@
 package com.igorvorobiov.movies;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
 import org.json.JSONArray;
@@ -21,13 +23,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
 
-    private PosterAdapter imageAdapter = null;
+    private PosterAdapter posterAdapter = null;
 
     public MainActivityFragment() {
     }
@@ -39,7 +45,19 @@ public class MainActivityFragment extends Fragment {
 
         GridView grid = (GridView) root.findViewById(R.id.all_movies_grid);
 
-        grid.setAdapter(getImageAdapter());
+        grid.setAdapter(getPosterAdapter());
+
+        grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                PosterModel model = (PosterModel) getPosterAdapter().getItem(position);
+                Intent intent = new Intent(getActivity(), DetailsActivity.class);
+                intent.putExtra("poster", model);
+
+                startActivity(intent);
+            }
+        });
 
         return root;
     }
@@ -54,16 +72,16 @@ public class MainActivityFragment extends Fragment {
         new FetchMoviesTask(sorting).execute();
     }
 
-    private PosterAdapter getImageAdapter(){
-        if (imageAdapter == null){
-            imageAdapter = new PosterAdapter(getActivity());
+    private PosterAdapter getPosterAdapter(){
+        if (posterAdapter == null){
+            posterAdapter = new PosterAdapter(getActivity());
         }
 
-        return imageAdapter;
+        return posterAdapter;
     }
 
 
-    private class FetchMoviesTask extends AsyncTask<Void, Void,  String[]>{
+    private class FetchMoviesTask extends AsyncTask<Void, Void,  PosterModel[]>{
 
         private final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
         private final String BASE_URL = "http://api.themoviedb.org/3/discover/movie";
@@ -76,25 +94,27 @@ public class MainActivityFragment extends Fragment {
             this.sorting = sorting;
         }
 
-        protected void onPostExecute(String[] urls) {
-            getImageAdapter().refresh(urls);
+        protected void onPostExecute(PosterModel[] models) {
+            getPosterAdapter().refresh(models);
         }
 
         @Override
-        protected String[] doInBackground(Void ...params) {
+        protected PosterModel[] doInBackground(Void ...params) {
             String json = fetchJSON();
 
             if (json == null){
-                return new String[0];
+                return new PosterModel[0];
             }
 
             try {
-                return extractURLs(json);
+                return createModels(json);
             } catch (JSONException e) {
-
+                e.printStackTrace();
+            } catch (ParseException e){
+                e.printStackTrace();
             }
 
-            return new String[0];
+            return new PosterModel[0];
         }
 
         private String fetchJSON(){
@@ -147,19 +167,26 @@ public class MainActivityFragment extends Fragment {
             return json;
         }
 
-        private String[] extractURLs(String json) throws JSONException {
+        private PosterModel[] createModels(String json) throws JSONException, ParseException {
 
             JSONObject root = new JSONObject(json);
             JSONArray results = root.getJSONArray("results");
 
-            String[] urls = new String[results.length()];
+            PosterModel[] models = new PosterModel[results.length()];
 
             for (int i = 0; i < results.length(); i ++){
                 JSONObject item = results.getJSONObject(i);
-                urls[i] = IMAGE_BASE_URL + "/w342" + item.getString("poster_path");
+
+                PosterModel model = new PosterModel();
+                model.setOverview(item.getString("overview"));
+                model.setPosterUrl(IMAGE_BASE_URL + "/w342" + item.getString("poster_path"));
+                model.setReleaseDate(item.getString("release_date"));
+                model.setTitle(item.getString("title"));
+                model.setVoteAverage(item.getDouble("vote_average"));
+                models[i] = model;
             }
 
-            return urls;
+            return models;
         }
 
         private String buildUrl()

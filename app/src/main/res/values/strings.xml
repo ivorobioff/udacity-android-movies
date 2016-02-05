@@ -6,4 +6,7 @@
     <string name="pref_header_general">General</string>
     <string name="default_movies_sorting_value" translatable="false">popularity</string>
     <string name="setting_title_movies_sorting">Present Sorted By</string>
+    <string name="title_activity_details">Review</string>
+    <string name="movie_rating_label"><![CDATA[<b>Rating:</b>]]> %s/10</string>
+    <string name="movie_release_date_label"><![CDATA[<b>Date:</b>]]> %s</string>
 </resources>

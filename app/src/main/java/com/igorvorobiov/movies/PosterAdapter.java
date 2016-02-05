@@ -1,7 +1,6 @@
 package com.igorvorobiov.movies;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -10,7 +9,7 @@ import com.squareup.picasso.Picasso;
 
 public class PosterAdapter extends BaseAdapter {
 
-    private String[] urls = new String[0];
+    private PosterModel[] models = new PosterModel[0];
     private Context context;
 
     PosterAdapter(Context context){
@@ -19,12 +18,12 @@ public class PosterAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return urls.length;
+        return models.length;
     }
 
     @Override
     public Object getItem(int position) {
-        return urls[position];
+        return models[position];
     }
 
     @Override
@@ -43,13 +42,15 @@ public class PosterAdapter extends BaseAdapter {
             poster = new PosterView(context);
         }
 
-        Picasso.with(context).load((String) getItem(position)).into(poster);
+        PosterModel model = (PosterModel) getItem(position);
+
+        Picasso.with(context).load(model.getPosterUrl()).into(poster);
 
         return poster;
     }
 
-    public void refresh(String[] urls){
-        this.urls = urls;
+    public void refresh(PosterModel[] models){
+        this.models = models;
         notifyDataSetChanged();
     }
 }
